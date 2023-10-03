@@ -1,37 +1,66 @@
-const pantalla = document.querySelector(".pantalla");
-const botones = document.querySelectorAll(".btn");
+const calculadora = {
+    pantalla: document.querySelector(".pantalla"),
+    botones: document.querySelectorAll(".btn"),
+    operadores: ['+', '-', '*', '/'],
 
-botones.forEach(boton => {
-    boton.addEventListener("click", () => {
-        const botonApretado = boton.textContent;
+    handleClear: function() {
+        this.pantalla.textContent = "0";
+    },
 
-        if (boton.id === "c") {
-            pantalla.textContent = "0";
-            return;
-        }
-
-        if (boton.id === "borrar") {
-            if (pantalla.textContent.length === 1 || pantalla.textContent === "Error!") {
-                pantalla.textContent = "0";
-            } else {
-                pantalla.textContent = pantalla.textContent.slice(0, -1);
-            }
-            return;
-        }
-
-        if (boton.id === "igual") {
-            try {
-                pantalla.textContent = eval(pantalla.textContent);
-            } catch {
-                pantalla.textContent = "Error!";
-            }
-            return;
-        }
-
-        if (pantalla.textContent === "0" || pantalla.textContent === "Error!") {
-            pantalla.textContent = botonApretado;
+    handleDelete: function() {
+        if (this.pantalla.textContent.length === 1 || this.pantalla.textContent === "Error!") {
+            this.pantalla.textContent = "0";
         } else {
-            pantalla.textContent += botonApretado;
+            this.pantalla.textContent = this.pantalla.textContent.slice(0, -1);
         }
-    })
-})
+    },
+
+    handleEquals: function() {
+        try {
+            this.pantalla.textContent = eval(this.pantalla.textContent);
+        } catch {
+            this.pantalla.textContent = "Error!";
+        }
+    },
+
+    handleOtherButton: function(botonApretado) {
+        if (this.pantalla.textContent === "0" || this.pantalla.textContent === "Error!") {
+            this.pantalla.textContent = botonApretado;
+        } else {
+            if (this.operadores.includes(botonApretado) && this.operadores.includes(this.pantalla.textContent.slice(-1))) {
+                return;
+            }
+            this.pantalla.textContent += botonApretado;
+        }
+    },
+
+    init: function() {
+        const handleClick = (boton) => {
+            const botonApretado = boton.textContent;
+
+            if (boton.id === "c") {
+                this.handleClear();
+                return;
+            }
+
+            if (boton.id === "borrar") {
+                this.handleDelete();
+                return;
+            }
+
+            if (boton.id === "igual") {
+                this.handleEquals();
+                return;
+            }
+
+            this.handleOtherButton(botonApretado);
+        };
+
+        this.botones.forEach(boton => {
+            boton.addEventListener("click", () => handleClick(boton));
+        });
+    }
+};
+
+// Inicializar la calculadora
+calculadora.init();
